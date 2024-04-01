@@ -157,7 +157,7 @@ export default function Home() {
             />
           </div>
           {isBreak && (
-            <div className="flex flex-col relative items-center justify-center">
+            <div className="flex flex-col  items-center justify-center">
               <Image
                 className="absolute z-0 dark:opacity-35"
                 src="/lotus2.png"
@@ -174,19 +174,22 @@ export default function Home() {
                   onClick={() => {
                     timerActive && !animationActive && setAnimationActive(true);
                   }}
-                  className={`flex justify-center text-white dark:text-slate-800 font-bold items-center opacity-80 cursor-pointer transform w-20 h-20 rounded-full transition-all duration-4000 ${
-                    expanded && "w-64 h-64"
-                  } ${expanded ? "bg-sky-200" : "bg-indigo-200"}
-                  `} //clean
+                  className={`flex justify-center text-white dark:text-slate-800 font-bold items-center opacity-80 cursor-pointer transform  rounded-full transition-all duration-4000
+                   ${
+                     expanded
+                       ? "bg-sky-200 w-64 h-64"
+                       : "bg-indigo-200 w-20 h-20"
+                   }
+                  `}
                 >
                   {timerActive && !animationActive && "CLICK"}
                 </div>
               </div>
-              {animationActive && (
-                <div className="flex justify-center items-center p-6 text-2xl dark:text-white">
-                  {onHold ? "Hold" : expanded ? "Breathe In" : "Breathe Out"}
-                </div>
-              )}
+            </div>
+          )}
+          {animationActive && (
+            <div className="flex justify-center items-center p-6 text-2xl dark:text-white">
+              {onHold ? "Hold" : expanded ? "Breathe In" : "Breathe Out"}
             </div>
           )}
         </div>
