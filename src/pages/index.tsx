@@ -93,12 +93,12 @@ export default function Home() {
 
       intervalId1 = setInterval(() => {
         setOnHold(true);
-        clearInterval(intervalId2); // Clear previous interval before setting a new one
+        clearInterval(intervalId2);
         intervalId2 = setInterval(() => {
           setExpanded((state) => !state);
           setOnHold((s) => !s);
         }, 4000);
-      }, 8000); // Adjust the delay here to 2x the inner interval
+      }, 8000);
 
       intervalId2 = setInterval(() => {
         setExpanded((state) => !state);
