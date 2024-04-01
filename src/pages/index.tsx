@@ -1,117 +1,238 @@
 import Image from "next/image";
 import { Inter } from "next/font/google";
+import { useEffect, useState, useRef } from "react";
+import { Switch } from "@/components/ui/switch";
+import Timer from "@/components/Timer";
+import { time } from "console";
 
 const inter = Inter({ subsets: ["latin"] });
 
+// TODO:
+// Pausing and skipping breaks it - looks like multiple intervals overlapping
+// cleanup/clearinterval is running, but not working
+
 export default function Home() {
+  const [darkMode, setDarkMode] = useState(false);
+  const [timerActive, setTimerActive] = useState(false);
+  const [startTime, setStartTime] = useState(25);
+  const [minutes, setMinutes] = useState(startTime);
+  const [seconds, setSeconds] = useState(0);
+  const [isBreak, setIsBreak] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [animationActive, setAnimationActive] = useState(false);
+  const [onHold, setOnHold] = useState(false);
+
+  useEffect(() => {
+    if (!seconds && !minutes) {
+      setIsBreak((prevState) => !prevState);
+    }
+  }, [seconds, minutes]);
+
+  useEffect(() => {
+    if (!seconds && !minutes) {
+      window.alert(
+        `Hey, ${
+          !isBreak
+            ? "your break is up, back to work!"
+            : "it's time for a break!"
+        }`
+      );
+    }
+    if (isBreak) {
+      setStartTime(5);
+    } else {
+      setStartTime(25);
+    }
+  }, [isBreak]);
+
+  //   if (isBreak) {
+  //     console.log("expanded:", expanded);
+
+  // let intervalId: NodeJS.Timeout | undefined;
+  // let intervalId2: NodeJS.Timeout | undefined;
+
+  //     if (isBreak && timerActive && !animationActive) {
+  //       setAnimationActive(true);
+  //       setOnHold(false);
+  //       setExpanded((state) => {
+  //         return !state;
+  //       });
+  //       if (!animationActive) {
+  //         intervalId = setInterval(() => {
+  //           setOnHold(true);
+  //           intervalId2 = setInterval(() => {
+  //             setExpanded((state) => {
+  //               return !state;
+  //             });
+  //             setOnHold((s) => !s);
+  //           }, 4000);
+  //         }, 4000);
+  //       }
+  //     }
+
+  //     return () => {
+  //       if (!timerActive || !isBreak) {
+  //         console.log("cleanup");
+  //         setOnHold(false);
+  //         setExpanded(false);
+  //         setAnimationActive(false);
+  //         clearInterval(intervalId);
+  //         clearInterval(intervalId2);
+  //       }
+  //     };
+  //   }
+  // }, [isBreak, timerActive, animationActive, expanded]);
+
+  useEffect(() => {
+    let intervalId1: NodeJS.Timeout;
+    let intervalId2: NodeJS.Timeout;
+
+    if (animationActive) {
+      console.log("start animation");
+      setOnHold(true);
+
+      intervalId1 = setInterval(() => {
+        setOnHold(true);
+        clearInterval(intervalId2); // Clear previous interval before setting a new one
+        intervalId2 = setInterval(() => {
+          setExpanded((state) => !state);
+          setOnHold((s) => !s);
+        }, 4000);
+      }, 8000); // Adjust the delay here to 2x the inner interval
+
+      intervalId2 = setInterval(() => {
+        setExpanded((state) => !state);
+        setOnHold((s) => !s);
+      }, 4000);
+    } else {
+      console.log("pause animation");
+      clearInterval(intervalId2);
+      clearInterval(intervalId1);
+    }
+
+    return () => {
+      console.log("cleanup");
+      clearInterval(intervalId2);
+      clearInterval(intervalId1);
+    };
+  }, [animationActive]);
+
   return (
     <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
+      className={`${
+        darkMode && "dark"
+      } flex flex-col items-start min-h-screen bg:slate-500  ${
+        inter.className
+      }`}
     >
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/pages/index.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+      <div
+        id="header"
+        className={`w-screen dark:text-white text-slate-800 px-12 lg:px-20 py-12 flex dark:bg-slate-900 bg-slate-50 justify-between items-center h-full ${inter.className}`}
+      >
+        <h1 className="text-4xl lg:text-5xl">PomoDojo</h1>
+        <div className="flex flex-col items-center">
+          <Switch
+            className="border-2 py-3 mb-2 border-white"
+            onCheckedChange={() => setDarkMode((state) => !state)}
+          />
+          <p className="">{darkMode ? "Dark" : "Light"}</p>
         </div>
       </div>
+      <div className="w-screen h-screen flex flex-col bg-slate-100 dark:bg-slate-800">
+        <div className="flex flex-col">
+          <div>
+            <Timer
+              minutes={minutes}
+              setMinutes={setMinutes}
+              active={timerActive}
+              setActive={setTimerActive}
+              seconds={seconds}
+              setSeconds={setSeconds}
+            />
+          </div>
+          {isBreak && (
+            <div className="flex flex-col relative items-center justify-center">
+              <Image
+                className="absolute z-0 top-2 dark:opacity-35"
+                src="/lotus2.png"
+                width={400}
+                height={400}
+                alt="lotus"
+              />
+              <div
+                className={`rounded-full w-72 h-72 z-10 transition-all flex items-center justify-center border-8 ${
+                  expanded ? "border-sky-200" : "border-indigo-200"
+                }`}
+              >
+                <div
+                  onClick={() => {
+                    timerActive && !animationActive && setAnimationActive(true);
+                  }}
+                  className={`flex justify-center text-white dark:text-slate-800 font-bold items-center opacity-80 cursor-pointer transform w-20 h-20 rounded-full transition-all duration-4000 ${
+                    expanded && "w-64 h-64"
+                  } ${expanded ? "bg-sky-200" : "bg-indigo-200"}
+                  `} //clean
+                >
+                  {timerActive && !animationActive && "CLICK"}
+                </div>
+              </div>
+              {animationActive && (
+                <div className="flex justify-center items-center p-6 text-2xl dark:text-white">
+                  {onHold ? "Hold" : expanded ? "Breathe In" : "Breathe Out"}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+        <div className="flex flex-col sm:flex-row py-10 justify-center items-center dark:bg-slate-800 bg-slate-100 ">
+          <button
+            onClick={() => {
+              setAnimationActive(false);
+              if (minutes || seconds) {
+                setTimerActive((active) => !active);
+              } else {
+                setMinutes(startTime);
+                setTimerActive(true);
+              }
+            }}
+            className="border-2 border-black dark:border-white px-4 py-1 text-white sm:mb-0 mb-3 sm:mr-2 bg-black hover:opacity-70  rounded-md dark:bg-white dark:hover:opacity-80  dark:text-slate-800"
+          >
+            {timerActive ? "Pause " : "Start "}
+            {isBreak ? "Break" : "Focus"}
+          </button>
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+          {/* {seconds || minutes ? (
+            <button
+              onClick={() => {
+                setMinutes(startTime);
+                setTimerActive(false);
+                setSeconds(0);
+              }}
+              className="px-4 py-1 text-black border-2 border-black hover:bg-slate-200 text-sm rounded-md dark:text-white dark:border-white dark:hover:bg-slate-800"
+            >
+              Reset
+            </button>
+          ) : ( */}
+          <button
+            onClick={() => {
+              setIsBreak((state) => !state);
+              setTimerActive(false);
+              setAnimationActive(false);
+              setSeconds(0);
+              if (isBreak) {
+                setMinutes(25);
+              } else {
+                setMinutes(5);
+                setExpanded(false);
+              }
+            }}
+            className="px-4 py-1 text-black border-2 border-black hover:bg-slate-200 rounded-md dark:text-white dark:border-white dark:hover:bg-slate-600"
+          >
+            {isBreak ? "Skip this Break?" : "Skip to a break?"}
+          </button>
+          {/* )} */}
+        </div>
       </div>
     </main>
   );
