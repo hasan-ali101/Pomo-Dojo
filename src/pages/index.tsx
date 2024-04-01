@@ -84,8 +84,8 @@ export default function Home() {
   // }, [isBreak, timerActive, animationActive, expanded]);
 
   useEffect(() => {
-    let intervalId1: NodeJS.Timeout;
-    let intervalId2: NodeJS.Timeout;
+    let intervalId1: NodeJS.Timeout | null = null;
+    let intervalId2: NodeJS.Timeout | null = null;
 
     if (animationActive) {
       console.log("start animation");
@@ -93,7 +93,9 @@ export default function Home() {
 
       intervalId1 = setInterval(() => {
         setOnHold(true);
-        clearInterval(intervalId2);
+        if (intervalId2) {
+          clearInterval(intervalId2);
+        }
         intervalId2 = setInterval(() => {
           setExpanded((state) => !state);
           setOnHold((s) => !s);
@@ -106,14 +108,22 @@ export default function Home() {
       }, 4000);
     } else {
       console.log("pause animation");
-      clearInterval(intervalId2);
-      clearInterval(intervalId1);
+      if (intervalId2) {
+        clearInterval(intervalId2);
+      }
+      if (intervalId1) {
+        clearInterval(intervalId1);
+      }
     }
 
     return () => {
       console.log("cleanup");
-      clearInterval(intervalId2);
-      clearInterval(intervalId1);
+      if (intervalId2) {
+        clearInterval(intervalId2);
+      }
+      if (intervalId1) {
+        clearInterval(intervalId1);
+      }
     };
   }, [animationActive]);
 
