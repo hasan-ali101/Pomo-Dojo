@@ -7,10 +7,6 @@ import { time } from "console";
 
 const inter = Inter({ subsets: ["latin"] });
 
-// TODO:
-// Pausing and skipping breaks it - looks like multiple intervals overlapping
-// cleanup/clearinterval is running, but not working
-
 export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
   const [timerActive, setTimerActive] = useState(false);
@@ -163,7 +159,7 @@ export default function Home() {
           {isBreak && (
             <div className="flex flex-col relative items-center justify-center">
               <Image
-                className="absolute z-0 top-2 dark:opacity-35"
+                className="absolute z-0 dark:opacity-35"
                 src="/lotus2.png"
                 width={400}
                 height={400}
