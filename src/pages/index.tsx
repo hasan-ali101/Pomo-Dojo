@@ -15,7 +15,6 @@ export default function Home() {
   const [seconds, setSeconds] = useState(0);
   const [isBreak, setIsBreak] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const [animationActive, setAnimationActive] = useState(false);
   const [onHold, setOnHold] = useState(false);
 
   useEffect(() => {
@@ -41,49 +40,11 @@ export default function Home() {
     }
   }, [isBreak]);
 
-  //   if (isBreak) {
-  //     console.log("expanded:", expanded);
-
-  // let intervalId: NodeJS.Timeout | undefined;
-  // let intervalId2: NodeJS.Timeout | undefined;
-
-  //     if (isBreak && timerActive && !animationActive) {
-  //       setAnimationActive(true);
-  //       setOnHold(false);
-  //       setExpanded((state) => {
-  //         return !state;
-  //       });
-  //       if (!animationActive) {
-  //         intervalId = setInterval(() => {
-  //           setOnHold(true);
-  //           intervalId2 = setInterval(() => {
-  //             setExpanded((state) => {
-  //               return !state;
-  //             });
-  //             setOnHold((s) => !s);
-  //           }, 4000);
-  //         }, 4000);
-  //       }
-  //     }
-
-  //     return () => {
-  //       if (!timerActive || !isBreak) {
-  //         console.log("cleanup");
-  //         setOnHold(false);
-  //         setExpanded(false);
-  //         setAnimationActive(false);
-  //         clearInterval(intervalId);
-  //         clearInterval(intervalId2);
-  //       }
-  //     };
-  //   }
-  // }, [isBreak, timerActive, animationActive, expanded]);
-
   useEffect(() => {
     let intervalId1: NodeJS.Timeout | null = null;
     let intervalId2: NodeJS.Timeout | null = null;
 
-    if (animationActive) {
+    if (isBreak && timerActive) {
       console.log("start animation");
       setOnHold(true);
 
@@ -103,6 +64,8 @@ export default function Home() {
         setOnHold((s) => !s);
       }, 4000);
     } else {
+      setExpanded(false);
+
       console.log("pause animation");
       if (intervalId2) {
         clearInterval(intervalId2);
@@ -114,6 +77,7 @@ export default function Home() {
 
     return () => {
       console.log("cleanup");
+      setExpanded(false);
       if (intervalId2) {
         clearInterval(intervalId2);
       }
@@ -121,7 +85,7 @@ export default function Home() {
         clearInterval(intervalId1);
       }
     };
-  }, [animationActive]);
+  }, [isBreak, timerActive]);
 
   return (
     <main
@@ -133,7 +97,7 @@ export default function Home() {
     >
       <div
         id="header"
-        className={`w-screen dark:text-white text-slate-800 px-12 lg:px-20 py-12 flex dark:bg-slate-900 bg-slate-50 justify-between items-center h-full ${inter.className}`}
+        className={`w-screen dark:text-white text-slate-800 px-12 lg:px-20 py-6 flex dark:bg-slate-900 bg-slate-50 justify-between items-center h-full ${inter.className}`}
       >
         <h1 className="text-4xl lg:text-5xl">PomoDojo</h1>
         <div className="flex flex-col items-center">
@@ -166,38 +130,37 @@ export default function Home() {
                 alt="lotus"
               />
               <div
-                className={`rounded-full w-72 h-72 z-10 transition-all flex items-center justify-center border-8 ${
+                className={`rounded-full w-64 h-64 z-10 transition-all flex items-center justify-center border-8 ${
                   expanded ? "border-sky-200" : "border-indigo-200"
                 }`}
               >
                 <div
-                  onClick={() => {
-                    timerActive && !animationActive && setAnimationActive(true);
-                  }}
-                  className={`flex justify-center text-white dark:text-slate-800 font-bold items-center opacity-80 cursor-pointer transform  rounded-full transition-all duration-4000
+                  // onClick={() => {
+                  //   timerActive && !animationActive && setAnimationActive(true);
+                  // }}
+                  className={`flex justify-center text-white dark:text-slate-800 text-xs font-bold items-center opacity-80 cursor-pointer transform  rounded-full transition-all duration-4000
                    ${
                      expanded
-                       ? "bg-sky-200 w-64 h-64"
-                       : "bg-indigo-200 w-20 h-20"
+                       ? "bg-sky-200 w-56 h-56"
+                       : "bg-indigo-200 w-14 h-14"
                    }
                   `}
                 >
-                  {timerActive && !animationActive && "CLICK"}
+                  {/* {timerActive && !animationActive && "CLICK"} */}
                 </div>
               </div>
             </div>
           )}
-          {animationActive && (
-            <div className="flex justify-center items-center p-6 text-2xl dark:text-white">
+          {isBreak && timerActive && (
+            <div className="flex justify-center items-center pt-6 text-2xl dark:text-white">
               {onHold ? "Hold" : expanded ? "Breathe In" : "Breathe Out"}
             </div>
           )}
         </div>
 
-        <div className="flex flex-col sm:flex-row py-10 justify-center items-center dark:bg-slate-800 bg-slate-100 ">
+        <div className="flex flex-col sm:flex-row py-6 justify-center items-center dark:bg-slate-800 bg-slate-100 ">
           <button
             onClick={() => {
-              setAnimationActive(false);
               if (minutes || seconds) {
                 setTimerActive((active) => !active);
               } else {
@@ -227,7 +190,6 @@ export default function Home() {
             onClick={() => {
               setIsBreak((state) => !state);
               setTimerActive(false);
-              setAnimationActive(false);
               setSeconds(0);
               if (isBreak) {
                 setMinutes(25);

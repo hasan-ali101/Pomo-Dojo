@@ -34,7 +34,7 @@ const Timer: React.FC<{
 
   return (
     <div className="flex flex-col items-center justify-around bg-slate-100 dark:text-white dark:bg-slate-800 border-t-2">
-      <div className="font-semibold text-5xl flex justify-center p-10 h-full ">
+      <div className="font-semibold text-3xl flex justify-center p-10 h-full ">
         <span>
           {minutes >= 10 ? minutes.toString() : "0" + minutes.toString()}:
         </span>
