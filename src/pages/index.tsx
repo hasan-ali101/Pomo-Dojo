@@ -1,11 +1,16 @@
 import Image from "next/image";
 import { Inter } from "next/font/google";
+import { Kaisei_HarunoUmi } from "next/font/google";
+
 import { useEffect, useState, useRef } from "react";
 import { Switch } from "@/components/ui/switch";
 import Timer from "@/components/Timer";
 import useSound from "use-sound";
+import { HiOutlineSpeakerWave } from "react-icons/hi2";
+import { HiOutlineSpeakerXMark } from "react-icons/hi2";
 
 const inter = Inter({ subsets: ["latin"] });
+const kh = Kaisei_HarunoUmi({ weight: "400", subsets: ["latin"] });
 
 export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
@@ -16,9 +21,11 @@ export default function Home() {
   const [isBreak, setIsBreak] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [onHold, setOnHold] = useState(false);
+  const [muted, setMuted] = useState(false);
 
   useEffect(() => {
     const bell = new Audio("/bell.mp3");
+    bell.volume = !muted ? 1 : 0;
 
     if (!minutes && seconds === 2) {
       console.log("play");
@@ -28,7 +35,7 @@ export default function Home() {
     if (!seconds && !minutes) {
       setIsBreak((prevState) => !prevState);
     }
-  }, [seconds, minutes]);
+  }, [seconds, minutes, muted]);
 
   useEffect(() => {
     if (!seconds && !minutes) {
@@ -41,7 +48,7 @@ export default function Home() {
       );
     }
     if (isBreak) {
-      setStartTime(0);
+      setStartTime(5);
     } else {
       setStartTime(25);
     }
@@ -52,8 +59,13 @@ export default function Home() {
     let intervalId2: NodeJS.Timeout | null = null;
     const soundA = new Audio("/A2.mp3");
     const soundB = new Audio("/B2.mp3");
-    let n = 1;
+
+    soundA.volume = !muted ? 0.75 : 0;
+    soundB.volume = !muted ? 0.75 : 0;
+
     soundA.play();
+
+    let n = 1;
 
     if (isBreak && timerActive) {
       setOnHold(true);
@@ -81,6 +93,7 @@ export default function Home() {
       soundB.pause();
       soundA.pause();
       setExpanded(false);
+      n === 1;
       if (intervalId2) {
         clearInterval(intervalId2);
       }
@@ -94,6 +107,7 @@ export default function Home() {
       setExpanded(false);
       soundB.pause();
       soundA.pause();
+      n === 1;
       if (intervalId2) {
         clearInterval(intervalId2);
       }
@@ -101,7 +115,7 @@ export default function Home() {
         clearInterval(intervalId1);
       }
     };
-  }, [isBreak, timerActive]);
+  }, [isBreak, timerActive, muted]);
 
   return (
     <main
@@ -113,9 +127,9 @@ export default function Home() {
     >
       <div
         id="header"
-        className={`w-screen dark:text-white text-slate-800 px-12 lg:px-20 py-6 flex dark:bg-slate-900 bg-slate-50 justify-between items-center h-full ${inter.className}`}
+        className={`w-screen dark:text-white text-slate-800 px-12 lg:px-20 py-6 flex dark:bg-slate-900 bg-slate-50 justify-between items-center h-full ${kh.className}`}
       >
-        <h1 className="text-4xl lg:text-5xl">PomoDojo</h1>
+        <h1 className="text-4xl lg:text-5xl dark:text-sky-200 ">PomoDojo</h1>
         <div className="flex flex-col items-center">
           <Switch
             className="border-2 py-3 mb-2 border-white"
@@ -146,7 +160,7 @@ export default function Home() {
                 alt="lotus"
               />
               <div
-                className={`rounded-full w-64 h-64 z-10 transition-all flex items-center justify-center border-8 ${
+                className={`rounded-full w-64 h-64 z-10 transition-all flex items-center justify-center border-8  ${
                   expanded ? "border-sky-200" : "border-indigo-200"
                 }`}
               >
@@ -154,7 +168,7 @@ export default function Home() {
                   // onClick={() => {
                   //   timerActive && !animationActive && setAnimationActive(true);
                   // }}
-                  className={`flex justify-center text-white dark:text-slate-800 text-xs font-bold items-center opacity-80 cursor-pointer transform  rounded-full transition-all duration-4000
+                  className={`flex justify-center ease-out text-white dark:text-slate-800 text-xs font-bold items-center opacity-80 cursor-pointer transform  rounded-full transition-all duration-4000
                    ${
                      expanded
                        ? "bg-sky-200 w-56 h-56"
@@ -206,11 +220,11 @@ export default function Home() {
             onClick={() => {
               setIsBreak((state) => !state);
               setTimerActive(false);
-              setSeconds(40);
+              setSeconds(0);
               if (isBreak) {
                 setMinutes(25);
               } else {
-                setMinutes(0);
+                setMinutes(5);
                 setExpanded(false);
               }
             }}
@@ -218,7 +232,23 @@ export default function Home() {
           >
             {isBreak ? "Skip this Break?" : "Skip to a break?"}
           </button>
-          {/* )} */}
+        </div>
+        <div className="flex justify-center">
+          <button
+            onClick={() => {
+              setMuted((s) => {
+                return !s;
+              });
+              console.log(muted);
+            }}
+            className=" border-2 w-10 border-sky-200 p-2 rounded-full bg-slate-50"
+          >
+            {muted ? (
+              <HiOutlineSpeakerXMark size={20} />
+            ) : (
+              <HiOutlineSpeakerWave size={20} />
+            )}
+          </button>
         </div>
       </div>
     </main>
