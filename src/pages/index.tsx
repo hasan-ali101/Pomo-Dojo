@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import { useEffect, useState, useRef } from "react";
 import { Switch } from "@/components/ui/switch";
 import Timer from "@/components/Timer";
-import { time } from "console";
+import useSound from "use-sound";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,6 +18,13 @@ export default function Home() {
   const [onHold, setOnHold] = useState(false);
 
   useEffect(() => {
+    const bell = new Audio("/bell.mp3");
+
+    if (!minutes && seconds === 2) {
+      console.log("play");
+      bell.play();
+    }
+
     if (!seconds && !minutes) {
       setIsBreak((prevState) => !prevState);
     }
@@ -34,7 +41,7 @@ export default function Home() {
       );
     }
     if (isBreak) {
-      setStartTime(5);
+      setStartTime(0);
     } else {
       setStartTime(25);
     }
@@ -43,11 +50,13 @@ export default function Home() {
   useEffect(() => {
     let intervalId1: NodeJS.Timeout | null = null;
     let intervalId2: NodeJS.Timeout | null = null;
+    const soundA = new Audio("/A2.mp3");
+    const soundB = new Audio("/B2.mp3");
+    let n = 1;
+    soundA.play();
 
     if (isBreak && timerActive) {
-      console.log("start animation");
       setOnHold(true);
-
       intervalId1 = setInterval(() => {
         setOnHold(true);
         if (intervalId2) {
@@ -55,18 +64,23 @@ export default function Home() {
         }
         intervalId2 = setInterval(() => {
           setExpanded((state) => !state);
+          n++;
+          n % 2 ? soundA.play() : soundB.play();
+          console.log(n);
           setOnHold((s) => !s);
         }, 4000);
       }, 8000);
 
       intervalId2 = setInterval(() => {
         setExpanded((state) => !state);
+        n++;
+        n % 2 ? soundA.play() : soundB.play();
         setOnHold((s) => !s);
       }, 4000);
     } else {
+      soundB.pause();
+      soundA.pause();
       setExpanded(false);
-
-      console.log("pause animation");
       if (intervalId2) {
         clearInterval(intervalId2);
       }
@@ -78,6 +92,8 @@ export default function Home() {
     return () => {
       console.log("cleanup");
       setExpanded(false);
+      soundB.pause();
+      soundA.pause();
       if (intervalId2) {
         clearInterval(intervalId2);
       }
@@ -190,11 +206,11 @@ export default function Home() {
             onClick={() => {
               setIsBreak((state) => !state);
               setTimerActive(false);
-              setSeconds(0);
+              setSeconds(40);
               if (isBreak) {
                 setMinutes(25);
               } else {
-                setMinutes(5);
+                setMinutes(0);
                 setExpanded(false);
               }
             }}
