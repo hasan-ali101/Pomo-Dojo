@@ -28,7 +28,6 @@ export default function Home() {
     bell.volume = !muted ? 1 : 0;
 
     if (!minutes && seconds === 2) {
-      console.log("play");
       bell.play();
     }
 
@@ -57,15 +56,6 @@ export default function Home() {
   useEffect(() => {
     let intervalId1: NodeJS.Timeout | null = null;
     let intervalId2: NodeJS.Timeout | null = null;
-    const soundA = new Audio("/A2.mp3");
-    const soundB = new Audio("/B2.mp3");
-
-    soundA.volume = !muted ? 0.75 : 0;
-    soundB.volume = !muted ? 0.75 : 0;
-
-    soundA.play();
-
-    let n = 1;
 
     if (isBreak && timerActive) {
       setOnHold(true);
@@ -76,24 +66,17 @@ export default function Home() {
         }
         intervalId2 = setInterval(() => {
           setExpanded((state) => !state);
-          n++;
-          n % 2 ? soundA.play() : soundB.play();
-          console.log(n);
           setOnHold((s) => !s);
         }, 4000);
       }, 8000);
 
       intervalId2 = setInterval(() => {
         setExpanded((state) => !state);
-        n++;
-        n % 2 ? soundA.play() : soundB.play();
         setOnHold((s) => !s);
       }, 4000);
     } else {
-      soundB.pause();
-      soundA.pause();
       setExpanded(false);
-      n === 1;
+
       if (intervalId2) {
         clearInterval(intervalId2);
       }
@@ -103,11 +86,7 @@ export default function Home() {
     }
 
     return () => {
-      console.log("cleanup");
       setExpanded(false);
-      soundB.pause();
-      soundA.pause();
-      n === 1;
       if (intervalId2) {
         clearInterval(intervalId2);
       }
@@ -115,7 +94,40 @@ export default function Home() {
         clearInterval(intervalId1);
       }
     };
-  }, [isBreak, timerActive, muted]);
+  }, [isBreak, timerActive]);
+
+  useEffect(() => {
+    const soundA = new Audio("/A2.mp3");
+    const soundB = new Audio("/B2.mp3");
+
+    soundA.volume = !muted ? 0.75 : 0;
+    soundB.volume = !muted ? 0.75 : 0;
+
+    let n = 1;
+
+    if (isBreak && timerActive) {
+      if (expanded) {
+        soundA.play();
+      } else if (!expanded) {
+        soundB.play();
+      }
+    } else {
+      soundB.pause();
+      soundA.pause();
+    }
+
+    return () => {
+      if (soundA) {
+        soundA.pause;
+        soundA.volume = 0;
+      }
+      if (soundB) {
+        soundB.pause();
+        soundA.volume = 0;
+      }
+      soundB.pause();
+    };
+  }, [expanded, muted, timerActive, isBreak]);
 
   return (
     <main
@@ -233,23 +245,24 @@ export default function Home() {
             {isBreak ? "Skip this Break?" : "Skip to a break?"}
           </button>
         </div>
-        {/* <div className="flex justify-center">
-          <button
-            onClick={() => {
-              setMuted((s) => {
-                return !s;
-              });
-              console.log(muted);
-            }}
-            className=" border-2 w-10 border-sky-200 p-2 rounded-full bg-slate-50"
-          >
-            {muted ? (
-              <HiOutlineSpeakerXMark size={20} />
-            ) : (
-              <HiOutlineSpeakerWave size={20} />
-            )}
-          </button>
-        </div> */}
+        {
+          <div className="flex justify-center">
+            <button
+              onClick={() => {
+                setMuted((s) => {
+                  return !s;
+                });
+              }}
+              className=" border-2 w-10 border-sky-200 p-2 rounded-full bg-slate-50"
+            >
+              {muted ? (
+                <HiOutlineSpeakerXMark size={20} />
+              ) : (
+                <HiOutlineSpeakerWave size={20} />
+              )}
+            </button>
+          </div>
+        }
       </div>
     </main>
   );
