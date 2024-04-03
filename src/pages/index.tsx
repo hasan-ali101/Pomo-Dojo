@@ -127,7 +127,7 @@ export default function Home() {
     >
       <div
         id="header"
-        className={`w-screen dark:text-white text-slate-800 px-12 lg:px-20 py-6 flex dark:bg-slate-900 bg-slate-50 justify-between items-center h-full ${kh.className}`}
+        className={`w-screen transition-colors ease-out dark:text-white text-slate-800 px-12 lg:px-20 py-6 flex dark:bg-slate-900 bg-slate-50 justify-between items-center h-full ${kh.className}`}
       >
         <h1 className="text-4xl lg:text-5xl dark:text-sky-200 ">PomoDojo</h1>
         <div className="flex flex-col items-center">
@@ -138,7 +138,7 @@ export default function Home() {
           <p className="">{darkMode ? "Dark" : "Light"}</p>
         </div>
       </div>
-      <div className="w-screen h-screen flex flex-col bg-slate-100 dark:bg-slate-800">
+      <div className="w-screen h-screen transition-colors ease-out flex flex-col bg-slate-100 dark:bg-slate-800">
         <div className="flex flex-col">
           <div>
             <Timer
