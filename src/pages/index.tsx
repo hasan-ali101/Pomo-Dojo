@@ -233,7 +233,7 @@ export default function Home() {
             {isBreak ? "Skip this Break?" : "Skip to a break?"}
           </button>
         </div>
-        <div className="flex justify-center">
+        {/* <div className="flex justify-center">
           <button
             onClick={() => {
               setMuted((s) => {
@@ -249,7 +249,7 @@ export default function Home() {
               <HiOutlineSpeakerWave size={20} />
             )}
           </button>
-        </div>
+        </div> */}
       </div>
     </main>
   );
