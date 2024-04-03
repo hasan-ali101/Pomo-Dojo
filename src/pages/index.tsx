@@ -239,9 +239,9 @@ export default function Home() {
             onClick={() => {
               setIsBreak((state) => !state);
               setTimerActive(false);
-              setSeconds(10);
+              setSeconds(0);
               if (isBreak) {
-                setMinutes(0);
+                setMinutes(25);
               } else {
                 setMinutes(5);
                 setExpanded(false);
