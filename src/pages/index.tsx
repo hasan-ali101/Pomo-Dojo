@@ -5,7 +5,6 @@ import { Kaisei_HarunoUmi } from "next/font/google";
 import { useEffect, useState, useRef } from "react";
 import { Switch } from "@/components/ui/switch";
 import Timer from "@/components/Timer";
-import useSound from "use-sound";
 import { HiOutlineSpeakerWave } from "react-icons/hi2";
 import { HiOutlineSpeakerXMark } from "react-icons/hi2";
 
@@ -114,6 +113,8 @@ export default function Home() {
     } else {
       soundB.pause();
       soundA.pause();
+      soundA.volume = 0;
+      soundB.volume = 0;
     }
 
     return () => {
@@ -123,7 +124,7 @@ export default function Home() {
       }
       if (soundB) {
         soundB.pause();
-        soundA.volume = 0;
+        soundB.volume = 0;
       }
       soundB.pause();
     };
@@ -194,8 +195,14 @@ export default function Home() {
             </div>
           )}
           {isBreak && timerActive && (
-            <div className="flex justify-center items-center pt-6 text-2xl dark:text-white">
-              {onHold ? "Hold" : expanded ? "Breathe In" : "Breathe Out"}
+            <div className="flex mt-6 justify-center items-center  w-full text-xl dark:text-white">
+              <span
+                className={`flex justify-center transition-all items-center border-4  p-6 w-20 h-20 rounded-full text-center ${
+                  !expanded ? "border-sky-200" : "border-indigo-200"
+                } `}
+              >
+                {onHold ? "Hold" : expanded ? "In" : "Out"}
+              </span>
             </div>
           )}
         </div>
@@ -232,9 +239,9 @@ export default function Home() {
             onClick={() => {
               setIsBreak((state) => !state);
               setTimerActive(false);
-              setSeconds(0);
+              setSeconds(10);
               if (isBreak) {
-                setMinutes(25);
+                setMinutes(0);
               } else {
                 setMinutes(5);
                 setExpanded(false);
